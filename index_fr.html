@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculatrice</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@700&display=swap');
+    body {
+      background-color: #ffffff; /* Set background to white */
+      color: #202124;
+      font-family: 'Product Sans', sans-serif;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px; /* Add some padding for smaller screens */
+      box-sizing: border-box;
+    }
+
+    .calculator {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 400px; /* Max width to ensure responsiveness */
+      box-sizing: border-box;
+      position: relative; /* For positioning the footnote */
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #5f6368;
+      font-size: 16px;
+    }
+
+    .block-group {
+      display: flex;
+      justify-content: space-between; /* Ensure blocks are evenly spaced */
+      margin-bottom: 20px;
+    }
+
+    .block {
+      flex: 1;
+      background-color: #e0e0e0;
+      border: none;
+      color: #202124;
+      cursor: pointer;
+      font-size: 16px; /* Increase font size for better readability */
+      padding: 15px 0;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
+      margin-right: 5px; /* Add some spacing between blocks */
+      border-radius: 5px; /* Add border radius for modern look */
+    }
+
+    .block:last-child {
+      margin-right: 0;
+    }
+
+    .block:hover, .block.active {
+      background-color: #4285f4;
+      color: #ffffff;
+    }
+
+    .result-frame {
+      border: 2px solid #155724; /* Dark green border */
+      border-radius: 8px;
+      margin-top: 20px;
+      padding: 15px;
+      text-align: center;
+      background-color: #d4edda; /* Light green background */
+    }
+
+    .result-frame p {
+      font-size: 1.4em; /* Increase font size */
+      margin: 0;
+    }
+
+    .cta {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .cta-button {
+      background-color: #147bf2;
+      color: #ffffff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      display: inline-block;
+      width: 100%; /* Same width as results box */
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .cta-button:hover {
+      background-color: #0f69d0;
+    }
+
+    .option-row i {
+      margin-left: 5px;
+    }
+
+    .footnote {
+      margin-top: 10px;
+      font-size: 0.5em; /* 50% smaller */
+      font-style: italic; /* Italic text */
+      color: #5f6368;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <label for="adr">Tarif Journalier Moyen (TJM):
+      <i class="fas fa-info-circle" data-toggle="tooltip" title="Quel est le tarif moyen de vos chambres?"></i>
+    </label>
+    <div id="adr-buttons" class="block-group">
+      <div class="block active" data-value="100">100€</div>
+      <div class="block" data-value="150">150€</div>
+      <div class="block" data-value="200">200€+</div>
+    </div>
+    
+    <label for="number-of-rooms">Nombre de Chambres:
+      <i class="fas fa-info-circle" data-toggle="tooltip" title="Combien de chambres possède votre hôtel?"></i>
+    </label>
+    <div id="rooms-buttons" class="block-group">
+      <div class="block" data-value="25">10-50</div>
+      <div class="block active" data-value="75">50-100</div>
+      <div class="block" data-value="125">100+</div>
+    </div>
+    
+    <label for="share-of-ota">Dépendance aux OTA (Booking/Expedia):
+      <i class="fas fa-info-circle" data-toggle="tooltip" title="Quelle part de vos revenus hôteliers dépend des agences de voyage en ligne?"></i>
+    </label>
+    <div id="ota-buttons" class="block-group">
+      <div class="block active" data-value="25">Faible</div>
+      <div class="block" data-value="50">Moyenne</div>
+      <div class="block" data-value="75">Élevée</div>
+    </div>
+    
+    <div class="result-frame">
+      <p>Nous pouvons vous aider à économiser jusqu'à <span id="commissions-paid">0€</span> chaque année!</p>
+    </div>
+    <div class="cta">
+      <a href="#" class="cta-button">Je veux plus de réservations directes!</a>
+    </div>
+    <div class="footnote">
+      En supposant un taux d'occupation de 75% et une commission moyenne de 18% pour les OTA
+    </div>
+  </div>
+
+  <script>
+    let adr = 100;
+    let numberOfRooms = 75;
+    let shareOfOTA = 25;
+
+    function calculateCommissions() {
+      let adrValue = adr;
+      let numberOfRoomsValue = numberOfRooms;
+      let shareOfOTAValue = shareOfOTA / 100;
+
+      if (isNaN(adrValue) || isNaN(numberOfRoomsValue) || isNaN(shareOfOTAValue)) {
+        document.getElementById('commissions-paid').innerText = 'Entrée invalide';
+        return;
+      }
+
+      let commissionsPayees = adrValue * numberOfRoomsValue * 0.75 * shareOfOTAValue * 0.18 * 365;
+      commissionsPayees = Math.round(commissionsPayees / 100) * 100;
+
+      document.getElementById('commissions-paid').innerText = `${formatNumber(commissionsPayees)}€`;
+    }
+
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    document.querySelectorAll('.block-group .block').forEach(block => {
+      block.addEventListener('click', function() {
+        let value = parseInt(this.getAttribute('data-value'));
+        if (this.parentElement.id === 'adr-buttons') {
+          adr = value;
+        } else if (this.parentElement.id === 'rooms-buttons') {
+          numberOfRooms = value;
+        } else if (this.parentElement.id === 'ota-buttons') {
+          shareOfOTA = value;
+        }
+        document.querySelectorAll(`#${this.parentElement.id} .block`).forEach(bl => bl.classList.remove('active'));
+        this.classList.add('active');
+        calculateCommissions();
+      });
+    });
+
+    calculateCommissions();
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+</body>
+</html>
